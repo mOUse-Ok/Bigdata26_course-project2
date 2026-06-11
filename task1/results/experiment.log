@@ -1,0 +1,15 @@
+Task 1 experiment log
+train ratings: 90854
+test pairs: 9982
+
+Validation results:
+- global_mean: RMSE=20.7231, MAE=16.4563, train=0.002s, peak=0.000MiB
+- shrunk_user_item_mean: RMSE=17.8158, MAE=13.7209, train=0.066s, peak=1.385MiB
+- regularized_bias_sgd: RMSE=17.2178, MAE=13.2119, train=6.607s, peak=1.129MiB
+
+Final model:
+- model: regularized_bias_sgd
+- train_seconds: 8.318
+- predict_seconds: 0.006
+- peak_tracemalloc_mib: 1.288
+- output: /home/liziheng/bigdata2-1/task1/results/predictions.txt

@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+
+*:Zone.Identifier
+~$*.docx
+
+# Local Track1 benchmark data is too large for a normal GitHub repository.
+task2/track1_run/track1/students/secure_data_full_1024/

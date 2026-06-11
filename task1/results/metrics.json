@@ -1,0 +1,83 @@
+{
+  "paths": {
+    "train": "/home/liziheng/bigdata2-1/作业说明/任务一/data/train.txt",
+    "test": "/home/liziheng/bigdata2-1/作业说明/任务一/data/test.txt",
+    "output": "/home/liziheng/bigdata2-1/task1/results/predictions.txt"
+  },
+  "config": {
+    "model": "bias",
+    "factors": 16,
+    "epochs": 35,
+    "lr": 0.007,
+    "reg": 0.05,
+    "val_ratio": 0.2,
+    "seed": 42
+  },
+  "data_stats": {
+    "train_users": 598,
+    "train_items": 9077,
+    "train_ratings": 90854,
+    "test_users": 610,
+    "test_items": 3618,
+    "test_pairs": 9982,
+    "cold_test_users": 12,
+    "cold_test_items": 647,
+    "rating_min": 10.0,
+    "rating_max": 100.0,
+    "rating_mean": 69.88211856384969,
+    "rating_median": 70.0,
+    "rating_stdev": 20.780031016809797,
+    "density": 0.016737883208801103,
+    "train_ratings_per_user_min": 15,
+    "train_ratings_per_user_max": 2678,
+    "train_ratings_per_user_mean": 151.9297658862876,
+    "test_pairs_per_user_min": 5,
+    "test_pairs_per_user_max": 496,
+    "test_pairs_per_user_mean": 16.36393442622951,
+    "score_distribution": {
+      "10": 1221,
+      "20": 2552,
+      "30": 1603,
+      "40": 6852,
+      "50": 5067,
+      "60": 18119,
+      "70": 11996,
+      "80": 24177,
+      "90": 7742,
+      "100": 11525
+    }
+  },
+  "validation": [
+    {
+      "model": "global_mean",
+      "validation_rmse": 20.723132647945288,
+      "validation_mae": 16.45632942740171,
+      "train_seconds": 0.00153159300043626,
+      "peak_tracemalloc_mib": 0.00045013427734375,
+      "parameter_bytes_estimate": 0
+    },
+    {
+      "model": "shrunk_user_item_mean",
+      "validation_rmse": 17.815801350581978,
+      "validation_mae": 13.720948113608879,
+      "train_seconds": 0.06629641400013497,
+      "peak_tracemalloc_mib": 1.3848342895507812,
+      "parameter_bytes_estimate": 72048
+    },
+    {
+      "model": "regularized_bias_sgd",
+      "validation_rmse": 17.217766244247006,
+      "validation_mae": 13.211867948356156,
+      "train_seconds": 6.606819612999971,
+      "peak_tracemalloc_mib": 1.1293678283691406,
+      "parameter_bytes_estimate": 72048
+    }
+  ],
+  "final_model": {
+    "model": "regularized_bias_sgd",
+    "train_seconds": 8.318050140000196,
+    "predict_seconds": 0.006053696999515523,
+    "peak_tracemalloc_mib": 1.2882041931152344,
+    "parameter_bytes_estimate": 77408
+  }
+}
