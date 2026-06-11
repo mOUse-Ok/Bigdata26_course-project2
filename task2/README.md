@@ -27,9 +27,9 @@ python3 task2/tools/synthetic_check.py
 使用 `track1_run` 中的 C++ runner 和完整本地数据测试：
 
 ```text
-10 轮 update 总耗时: 0.069 s
+10 轮 update 总耗时: 0.010 s
 更新前 RMSE: 1.02171
-更新后 RMSE: 1.01044
+更新后 RMSE: 0.958739
 结果有效: true
 ```
 

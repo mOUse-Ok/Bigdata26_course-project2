@@ -18,22 +18,21 @@ public:
         global_mean = mean;
         P = user_matrix;
         Q = item_matrix;
+
+        user_sum.assign(static_cast<std::size_t>(users), 0.0f);
+        item_sum.assign(static_cast<std::size_t>(items), 0.0f);
+        user_count.assign(static_cast<std::size_t>(users), 0);
+        item_count.assign(static_cast<std::size_t>(items), 0);
         user_bias.assign(static_cast<std::size_t>(users), 0.0f);
         item_bias.assign(static_cast<std::size_t>(items), 0.0f);
     }
 
     void update(const std::vector<Rating>& incremental_batch) {
-        if (P == nullptr || Q == nullptr || incremental_batch.empty()) {
+        if (incremental_batch.empty()) {
             return;
         }
 
-        const float bias_lr = 0.0060f;
-        const float bias_reg = 0.0500f;
-        const float bias_shrink = 1.0f - bias_lr * bias_reg;
-        const int dim = latent_dim;
-        const int sample_stride = 128;
-
-        for (std::size_t idx = 0; idx < incremental_batch.size(); idx += sample_stride) {
+        for (std::size_t idx = 0; idx < incremental_batch.size(); idx += kStatStride) {
             const Rating& r = incremental_batch[idx];
             const int u = r.user;
             const int i = r.item;
@@ -41,24 +40,24 @@ public:
                 continue;
             }
 
-            float* p_row = P + static_cast<long long>(u) * dim;
-            float* q_row = Q + static_cast<long long>(i) * dim;
+            const float dev = r.rating - global_mean;
+            user_sum[u] += dev;
+            item_sum[i] += dev;
+            user_count[u] += 1;
+            item_count[i] += 1;
+        }
 
-            float dot = 0.0f;
-#pragma omp simd reduction(+:dot)
-            for (int k = 0; k < dim; ++k) {
-                dot += p_row[k] * q_row[k];
+        for (int u = 0; u < users; ++u) {
+            const int c = user_count[u];
+            if (c > 0) {
+                user_bias[u] = user_sum[u] / (static_cast<float>(c) + kUserAlpha);
             }
-
-            float err = r.rating - (global_mean + user_bias[u] + item_bias[i] + dot);
-            if (err > 5.0f) {
-                err = 5.0f;
-            } else if (err < -5.0f) {
-                err = -5.0f;
+        }
+        for (int i = 0; i < items; ++i) {
+            const int c = item_count[i];
+            if (c > 0) {
+                item_bias[i] = item_sum[i] / (static_cast<float>(c) + kItemAlpha);
             }
-
-            user_bias[u] = user_bias[u] * bias_shrink + bias_lr * err;
-            item_bias[i] = item_bias[i] * bias_shrink + bias_lr * err;
         }
     }
 
@@ -71,11 +70,12 @@ public:
         const float* p_row = P + static_cast<long long>(user_id) * latent_dim;
         const float* q_row = Q + static_cast<long long>(item_id) * latent_dim;
 
-        float score = global_mean + user_bias[user_id] + item_bias[item_id];
+        float score = global_mean;
 #pragma omp simd reduction(+:score)
         for (int k = 0; k < latent_dim; ++k) {
             score += p_row[k] * q_row[k];
         }
+        score += user_bias[user_id] + item_bias[item_id];
 
         if (score < 0.5f) {
             return 0.5f;
@@ -87,12 +87,20 @@ public:
     }
 
 private:
+    static constexpr float kUserAlpha = 50.0f;
+    static constexpr float kItemAlpha = 10.0f;
+    static constexpr int kStatStride = 32;
+
     int users = 0;
     int items = 0;
     int latent_dim = 0;
     float global_mean = 0.0f;
     float* P = nullptr;
     float* Q = nullptr;
+    std::vector<float> user_sum;
+    std::vector<float> item_sum;
+    std::vector<int> user_count;
+    std::vector<int> item_count;
     std::vector<float> user_bias;
     std::vector<float> item_bias;
 };
